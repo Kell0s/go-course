@@ -9,7 +9,7 @@ func Pic(dx, dy int) [][]uint8 {
 		str := make([]uint8, 0, dx)
 
 		for x := 0; x < dx; x++ {
-			str = append(str, uint8(x^y))
+			str = append(str, uint8((x+y)/2))
 		}
 
 		img = append(img, str)
