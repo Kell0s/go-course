@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 const (
@@ -10,11 +12,11 @@ const (
 )
 
 type Notification struct {
-	Recipient string
-	Subject   string
-	Body      string
-	Channel   string
-	isUrgent  bool
+	Recipient string `json:"to"`
+	Subject   string `json:"subject"`
+	Body      string `json:"body"`
+	Channel   string `json:"channel"`
+	isUrgent  bool   `json:"urgent"`
 }
 
 func (n Notification) Send() (string, string) {
@@ -36,20 +38,62 @@ func (n Notification) Validate() error {
 	return nil
 }
 
-func main() {
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		App     string `json:"app"`
+		Version string `json:"version"`
+		Status  string `json:"status"`
+	}{
+		App:     appName,
+		Version: appVersion,
+		Status:  "available",
+	}
+
+	js, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("Marshal error:", err)
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.Write(js)
+}
+
+func notificationHandler(w http.ResponseWriter, r *http.Request) {
 	n := Notification{
-		Recipient: "",
+		Recipient: "example@gmail.com",
 		Subject:   "Deply done",
 		Body:      "v1.2.3 deplyed",
 		Channel:   "email",
 	}
 
+	w.Header().Set("Content-type", "application/json")
+
 	err := n.Validate()
 	if err != nil {
-		fmt.Println("Error:", err)
+		errResp := struct {
+			Error string `json: "error"`
+		}{
+			Error: err.Error(),
+		}
+		js, _ := json.Marshal(errResp)
+		w.Header().Set("Content-type", "application/json")
+		w.Write(js)
 		return
 	}
-	message, status := n.Send()
 
-	fmt.Println(message, status)
+	js, _ := json.Marshal(n)
+	w.Write(js)
+}
+
+func main() {
+	http.HandleFunc("/health", healthHandler)
+	http.HandleFunc("/api/notification", notificationHandler)
+
+	fmt.Println("starting server on: 8080")
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("server error:", err)
+	}
 }
