@@ -57,8 +57,7 @@ func main() {
 	for _, book := range library {
 		err := book.Validate()
 		if err != nil {
-			fmt.Println("ошибка: ", err)
-
+			fmt.Println("ошибка:", err)
 			continue
 		}
 
@@ -67,7 +66,7 @@ func main() {
 			cntRead++
 		}
 
-		fmt.Println(book.String())
+		fmt.Println(book)
 	}
 	fmt.Printf("Прочитано: %d из %d\n", cntRead, cntBooks)
 }
