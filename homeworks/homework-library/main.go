@@ -2,14 +2,14 @@ package main
 
 import "fmt"
 
-type book struct {
+type Book struct {
 	Title  string
 	Author string
 	Pages  int
 	isRead bool
 }
 
-func String(b book) string {
+func (b Book) String() string {
 	if b.isRead {
 		return fmt.Sprintf("«%s» - %s, %d стр ✓",
 			b.Title, b.Author, b.Pages)
@@ -19,41 +19,43 @@ func String(b book) string {
 		b.Title, b.Author, b.Pages)
 }
 
-func Validate(b book) error {
-	errTitle := "Ошибка: нет названия"
-	errPage := "Ошибка: неверное кол-во страниц"
+func (b Book) Validate() error {
+	errTitle := "нет названия"
+	errPage := "неверное кол-во страниц"
 
 	if b.Title == "" {
-		return fmt.Errorf("%s", errTitle)
+		return fmt.Errorf("ошибка: %s", errTitle)
 	}
 	if b.Pages <= 0 {
-		return fmt.Errorf("%s", errPage)
+		return fmt.Errorf("ошибка: %s", errPage)
 	}
 
 	return nil
 }
 
 func main() {
-	book1 := book{
-		Title:  "",
+	book1 := Book{
+		Title:  "Чистый код",
 		Author: "Мартин",
 		Pages:  400,
 		isRead: true,
 	}
-	book2 := book{
+	book2 := Book{
 		Title:  "Язык прогрмариования Go",
 		Author: "Донован",
 		Pages:  -10,
 		isRead: false,
 	}
 
-	library := []book{book1, book2}
+	library := []Book{book1, book2}
 
 	for _, book := range library {
-		if Validate(book) == nil {
-			fmt.Println(String(book))
-		} else {
-			fmt.Println(Validate(book))
+		err := book.Validate()
+		if err != nil {
+			fmt.Println(book.Validate())
+			continue
 		}
+
+		fmt.Println(book.String())
 	}
 }
