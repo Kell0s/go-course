@@ -9,12 +9,8 @@ type Book struct {
 	isRead bool
 }
 
-var cntRead int
-
 func (b Book) String() string {
 	if b.isRead {
-		cntRead++
-
 		return fmt.Sprintf("«%s» - %s, %d стр ✓",
 			b.Title, b.Author, b.Pages)
 	}
@@ -47,17 +43,31 @@ func main() {
 		Pages:  10,
 		isRead: false,
 	}
+	book3 := Book{
+		Title:  "",
+		Author: "Донован",
+		Pages:  10,
+		isRead: false,
+	}
 
-	library := []Book{book1, book2}
+	library := []Book{book1, book2, book3}
+	cntRead := 0
+	cntBooks := 0
 
 	for _, book := range library {
 		err := book.Validate()
 		if err != nil {
 			fmt.Println("ошибка: ", err)
+
 			continue
+		}
+
+		cntBooks++
+		if book.isRead {
+			cntRead++
 		}
 
 		fmt.Println(book.String())
 	}
-	fmt.Printf("Прочитано: %d из %d\n", cntRead, len(library))
+	fmt.Printf("Прочитано: %d из %d\n", cntRead, cntBooks)
 }
