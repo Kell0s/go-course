@@ -9,8 +9,12 @@ type Book struct {
 	isRead bool
 }
 
+var cntRead int
+
 func (b Book) String() string {
 	if b.isRead {
+		cntRead++
+
 		return fmt.Sprintf("«%s» - %s, %d стр ✓",
 			b.Title, b.Author, b.Pages)
 	}
@@ -20,14 +24,11 @@ func (b Book) String() string {
 }
 
 func (b Book) Validate() error {
-	errTitle := "нет названия"
-	errPage := "неверное кол-во страниц"
-
 	if b.Title == "" {
-		return fmt.Errorf("ошибка: %s", errTitle)
+		return fmt.Errorf("название не найдено")
 	}
 	if b.Pages <= 0 {
-		return fmt.Errorf("ошибка: %s", errPage)
+		return fmt.Errorf("неверное кол-во страниц")
 	}
 
 	return nil
@@ -43,7 +44,7 @@ func main() {
 	book2 := Book{
 		Title:  "Язык прогрмариования Go",
 		Author: "Донован",
-		Pages:  -10,
+		Pages:  10,
 		isRead: false,
 	}
 
@@ -52,10 +53,11 @@ func main() {
 	for _, book := range library {
 		err := book.Validate()
 		if err != nil {
-			fmt.Println(book.Validate())
+			fmt.Println("ошибка: ", err)
 			continue
 		}
 
 		fmt.Println(book.String())
 	}
+	fmt.Printf("Прочитано: %d из %d\n", cntRead, len(library))
 }
