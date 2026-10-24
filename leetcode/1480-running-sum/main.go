@@ -2,17 +2,21 @@ package main
 
 import "fmt"
 
-func runningSum(nums []int) []int {
-	lastNum := 0
-	for i, num := range nums {
-		nums[i] = num + lastNum
-		lastNum += num
+func numIdenticalPairs(nums []int) int {
+	cnt := 0
+
+	for i, num1 := range nums {
+		for j, num2 := range nums {
+			if num1 == num2 && i < j {
+				cnt++
+			}
+		}
 	}
 
-	return nums
+	return cnt
 }
 
 func main() {
 	nums := []int{1, 2, 3, 4}
-	fmt.Println(runningSum(nums))
+	fmt.Println(numIdenticalPairs(nums))
 }
