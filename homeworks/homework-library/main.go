@@ -30,6 +30,10 @@ func (b Book) Validate() error {
 	return nil
 }
 
+func (b *Book) MarkRead(toggleRead bool) {
+	b.isRead = toggleRead
+}
+
 func main() {
 	book1 := Book{
 		Title:  "Чистый код",
@@ -49,6 +53,8 @@ func main() {
 		Pages:  10,
 		isRead: false,
 	}
+
+	book2.MarkRead(true)
 
 	library := []Book{book1, book2, book3}
 	cntRead := 0
