@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Library struct {
 	Books []Book
@@ -21,7 +23,7 @@ func (l *Library) Add(b Book) error {
 
 	for _, book := range l.Books {
 		if b.Title == book.Title {
-			return fmt.Errorf("книга %s уже есть", book)
+			return fmt.Errorf("книга \"%s\" уже есть", book.Title)
 		}
 	}
 
@@ -52,6 +54,38 @@ func (b Book) Validate() error {
 
 func (b *Book) setRead(toggleRead bool) {
 	b.isRead = toggleRead
+}
+
+func (l *Library) MarkRead(title string) error {
+	for i, bookName := range l.Books {
+		if bookName.Title == title {
+			l.Books[i].setRead(true)
+
+			return nil
+		}
+	}
+
+	return fmt.Errorf("название \"%s\"не найдено", title)
+}
+
+func (l *Library) Stats() (total, read int) {
+	for _, b := range l.Books {
+		if b.isRead {
+			read++
+		}
+		total++
+	}
+	return total, read
+}
+
+func (l *Library) ByAuthor() map[string][]Book {
+	booksByAuthor := map[string][]Book{}
+
+	for _, b := range l.Books {
+		booksByAuthor[b.Author] = append(booksByAuthor[b.Author], b)
+	}
+
+	return booksByAuthor
 }
 
 func main() {
@@ -86,38 +120,38 @@ func main() {
 		isRead: false,
 	}
 
-	book2.setRead(true)
-
-	lib := Library{
-		Books: []Book{book1, book2, book3},
-	}
-
-	err := lib.Add(book4)
-	if err != nil {
-		fmt.Println("ошибка:", err)
-	}
-
-	err = lib.Add(book5)
-	if err != nil {
-		fmt.Println("ошибка:", err)
-	}
-
 	cntRead := 0
 	cntBooks := 0
 
-	for _, book := range lib.Books {
-		err := book.Validate()
-		if err != nil {
-			fmt.Println("ошибка:", err)
-			continue
-		}
+	lib := Library{}
 
-		cntBooks++
-		if book.isRead {
+	for i, b := range []Book{book1, book2, book3, book4, book5} {
+		if err := lib.Add(b); err != nil {
+			fmt.Println("ошибка:", i, err)
+		}
+	}
+
+	if err := lib.MarkRead("Крутая книга"); err != nil {
+		fmt.Println("ошибка:", err)
+	}
+
+	for _, b := range lib.Books {
+		if b.isRead {
 			cntRead++
 		}
+		cntBooks++
 
-		fmt.Println(book)
+		fmt.Println(b)
 	}
-	fmt.Printf("Прочитано: %d из %d\n", cntRead, cntBooks)
+
+	total, read := lib.Stats()
+	fmt.Printf("Прочитано: %d из %d\n", read, total)
+
+	for author, books := range lib.ByAuthor() {
+		fmt.Println()
+		fmt.Println(author, ": ")
+		for _, book := range books {
+			fmt.Println("\t", book)
+		}
+	}
 }
