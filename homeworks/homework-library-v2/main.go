@@ -21,10 +21,8 @@ func (l *Library) Add(b Book) error {
 		return err
 	}
 
-	for _, book := range l.Books {
-		if b.Title == book.Title {
-			return fmt.Errorf("книга \"%s\" уже есть", book.Title)
-		}
+	if _, ok := l.find(b.Title); ok {
+		return fmt.Errorf("книга %q уже есть", b.Title)
 	}
 
 	l.Books = append(l.Books, b)
@@ -52,14 +50,14 @@ func (b Book) Validate() error {
 	return nil
 }
 
-func (l Library) find(title string) (int, error) {
+func (l Library) find(title string) (int, bool) {
 	for i, bookName := range l.Books {
 		if bookName.Title == title {
-			return i, nil
+			return i, true
 		}
 	}
 
-	return 0, fmt.Errorf("название %q не найдено", title)
+	return 0, false
 }
 
 func (b *Book) setRead(toggleRead bool) {
@@ -67,9 +65,9 @@ func (b *Book) setRead(toggleRead bool) {
 }
 
 func (l *Library) MarkRead(title string) error {
-	i, err := l.find(title)
-	if err != nil {
-		return err
+	i, ok := l.find(title)
+	if !ok {
+		return fmt.Errorf("название %q не найдено", title)
 	}
 
 	l.Books[i].setRead(true)
