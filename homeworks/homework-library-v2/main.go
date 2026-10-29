@@ -41,7 +41,7 @@ func (b Book) String() string {
 
 func (b Book) Validate() error {
 	if b.Title == "" {
-		return fmt.Errorf("название не найдено")
+		return fmt.Errorf("пустое название")
 	}
 	if b.Pages <= 0 {
 		return fmt.Errorf("неверное кол-во страниц")
@@ -50,7 +50,7 @@ func (b Book) Validate() error {
 	return nil
 }
 
-func (l Library) find(title string) (int, bool) {
+func (l *Library) find(title string) (int, bool) {
 	for i, bookName := range l.Books {
 		if bookName.Title == title {
 			return i, true
