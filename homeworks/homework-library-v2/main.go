@@ -52,20 +52,28 @@ func (b Book) Validate() error {
 	return nil
 }
 
+func (l Library) find(title string) (int, error) {
+	for i, bookName := range l.Books {
+		if bookName.Title == title {
+			return i, nil
+		}
+	}
+
+	return 0, fmt.Errorf("название %q не найдено", title)
+}
+
 func (b *Book) setRead(toggleRead bool) {
 	b.isRead = toggleRead
 }
 
 func (l *Library) MarkRead(title string) error {
-	for i, bookName := range l.Books {
-		if bookName.Title == title {
-			l.Books[i].setRead(true)
-
-			return nil
-		}
+	i, err := l.find(title)
+	if err != nil {
+		return err
 	}
 
-	return fmt.Errorf("название \"%s\"не найдено", title)
+	l.Books[i].setRead(true)
+	return nil
 }
 
 func (l *Library) Stats() (total, read int) {
@@ -120,9 +128,6 @@ func main() {
 		isRead: false,
 	}
 
-	cntRead := 0
-	cntBooks := 0
-
 	lib := Library{}
 
 	for i, b := range []Book{book1, book2, book3, book4, book5} {
@@ -135,12 +140,11 @@ func main() {
 		fmt.Println("ошибка:", err)
 	}
 
-	for _, b := range lib.Books {
-		if b.isRead {
-			cntRead++
-		}
-		cntBooks++
+	if err := lib.MarkRead("Война и мир"); err != nil {
+		fmt.Println("ошибка:", err)
+	}
 
+	for _, b := range lib.Books {
 		fmt.Println(b)
 	}
 
@@ -149,7 +153,7 @@ func main() {
 
 	for author, books := range lib.ByAuthor() {
 		fmt.Println()
-		fmt.Println(author, ": ")
+		fmt.Println(author + ": ")
 		for _, book := range books {
 			fmt.Println("\t", book)
 		}
