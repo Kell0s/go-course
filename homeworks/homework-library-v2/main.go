@@ -41,7 +41,7 @@ func (b Book) String() string {
 
 func (b Book) Validate() error {
 	if b.Title == "" {
-		return fmt.Errorf("пустое название")
+		return fmt.Errorf("")
 	}
 	if b.Pages <= 0 {
 		return fmt.Errorf("неверное кол-во страниц")
